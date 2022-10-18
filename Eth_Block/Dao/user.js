@@ -13,6 +13,15 @@ module.exports.getEmail = (email) => {
     });
 };
 
+exports.GetUsersData =()=>{
+    return new Promise((resolved, reject) => {
+     connectDB.query("SELECT * from user", (err, result) => {
+        if (err) throw err
+        resolved(result)
+      });
+    });
+}
+
 
 module.exports.StoreNewUserData = (id, utype, email, PRIVATEencryptedString, PUBLICencryptedString) => {
     return new Promise((resolved, reject) => {

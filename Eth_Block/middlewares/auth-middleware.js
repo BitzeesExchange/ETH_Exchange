@@ -3,32 +3,29 @@ const db = require('../Dao/user')
 const Cryptr = require('cryptr');
 const cryptr = new Cryptr('myTotallySecretKey');
 
-exports.Login = async function (req, res) {
-    try {
-        let data = req.body;
-        const { email, publickey } = data;
-         if(!email || !publickey) return res.status(400).send({ status_code: 400, msg: "please enter email & publickey!!" })
-        const DBresult = await db.getEmail(email)
-        const Publickey = DBresult.map(a => a.publickey)
-        const decryptedString = cryptr.decrypt(Publickey);
+// exports.authentication = async function (req, res,next) {
+//     try {
+//         let data = req.body;
+//         const { email } = data;
+//          if(!email ) return res.status(400).send({ status_code: 400, msg: "please enter email & publickey!!" })
+//         const DBresult = await db.getEmail(email)
+        
+//         if (!DBresult) return res.status(400).send({ status_code: 400, msg: "Invalid Email-id !!" })      
+       
 
-        console.log(Publickey)
-        if (!DBresult) return res.status(400).send({ status_code: 400, msg: "Invalid Email-id !!" })      
-        if (publickey!==decryptedString) return res.status(400).send({ status_code: 400, msg: "Invalid Publickey!!" })      
-
-
-        // After validation of user creating a toke
-        let token = jwt.sign({
-           email:email ,publickey:Publickey
-        },
-           process.env.JWT_SECRET_KEY
-        );
-        res.send({ status: true, msg: "login Successful!!", data:token });
-    }
-    catch (err) {
-        return res.status(500).send({ status: false, msg: err.message })
-    }
-};
+//         // After validation of user creating a toke
+//         let token = jwt.sign({
+//            email:email 
+//         },
+//            process.env.JWT_SECRET_KEY
+//         );
+//         next()
+//         // res.send({ status: true, msg: "login Successful!!", data:token });
+//     }
+//     catch (err) {
+//         return res.status(500).send({ status: false, msg: err.message })
+//     }
+// };
 
 
 
