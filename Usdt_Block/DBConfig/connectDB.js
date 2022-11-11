@@ -1,5 +1,3 @@
-// const{ createPool } = require('mysql'); // We can create pool of connections and we can execute the query parallaly 
-
 //Connect to the database
 const mysql = require('mysql');
 

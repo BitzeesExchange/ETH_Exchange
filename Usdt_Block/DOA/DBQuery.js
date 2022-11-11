@@ -1,4 +1,4 @@
-const connectDB = require('../config/connectdb')
+const connectDB = require('../DBConfig/connectDB')
 
 
 
