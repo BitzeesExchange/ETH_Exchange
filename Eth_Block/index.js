@@ -18,5 +18,5 @@ app.use("/user", router)
 
 //set app port
 app.listen(port, () => {
-  console.log(`Example app listening at http://localhost:${port}`);
+  console.log(`ETHEREUM server listening at http://localhost:${port}`);
 });

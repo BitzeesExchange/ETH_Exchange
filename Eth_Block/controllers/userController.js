@@ -4,58 +4,8 @@ const { ethers } = require("ethers");
 const db = require('../Dao/user')
 const Cryptr = require('cryptr');
 const cryptr = new Cryptr('myTotallySecretKey');
-const ethWallet = require('ethereumjs-wallet');
 
 
-exports.userResgistration = async (req, res) => {
-  try {
-    const { id, utype, email } = req.body;
-
-    // Validate user input
-    if (!(utype || email || id)) return res.status(400).json({ status_code: 400, message: 'All input are require, Missing Something Please check.' });
-
-    // Generate JWT Token
-    const token = jwt.sign(email, `${process.env.JWT_SECRET_KEY}`);
-
-    //Generate Public Key and Private Key
-    var addressData = ethWallet['default'].generate();
-
-    // Generate Private key
-    const privkey = (`${addressData.getPrivateKeyString()}`);
-
-    // Encrypt privatekey
-    const PRIVATEencryptedString = cryptr.encrypt(privkey);
-
-    // Generate PublicKey
-    const pubkey = (`${addressData.getAddressString()}`);
-
-    // Encrypt publickey
-    const PUBLICencryptedString = cryptr.encrypt(pubkey);
-
-    // Data Destructured for getting Proper Response
-    const data = {
-      id,
-      utype,
-      email,
-      token
-    }
-
-    // Storing Data in MySql DataBase
-    const DBresult = db.StoreNewUserData(id, utype, email, PRIVATEencryptedString, PUBLICencryptedString)
-    if (!DBresult) {
-      return res.send()
-    } else {
-      res.json({ status_code: 200, msg: "Wallet Generared Successfully!!", data: [data] });
-    }
-  } catch (err) {
-    return res.status(500).send({ status_code: 500, msg: err.message })
-  }
-}
-
-exports.getAllUsers = async(req, res) => {
-       const Dbresult = await db.GetUsersData()
-       res.status(200).send({ status_code: 200, msg: "All resgistered users fetched succesfully!!", data:[Dbresult] })
-}
 
 
 exports.getbalance = async (req, res) => {
@@ -69,15 +19,17 @@ exports.getbalance = async (req, res) => {
     // Fetched publickey from email entered in req body
     const [Result] = DBresult.map(a => a.publickey)
     if (Result == undefined) return res.status(404).send({ msg: "Email not found!!" })
-
     // Decrypting  Publickey
     const decryptedString = cryptr.decrypt(Result);
+  console.log(decryptedString)
 
+  const [privateKey] = DBresult.map(a => a.privatekey)
+  const decryptedStringp = cryptr.decrypt(privateKey);
+  console.log(decryptedStringp)
     // GET BALANCE FROM GIVEN PUBLICKEY Using "eathers" Package
     const provider = new ethers.providers.JsonRpcProvider(process.env.provider)
 
     const balance = await provider.getBalance(decryptedString)      // need time optimisation 
-    console.log(balance)
     return res.status(200).send({ status_code: 200, msg: "Successs!!", data: [{ ETH_Balance: `${ethers.utils.formatEther(balance)}` }] })
   } catch (err) {
     return res.status(500).send({ status_code: 500, msg: err.message })
@@ -107,7 +59,7 @@ exports.TransferBalance = async (req, res) => {
 
       const [publickey] = DBresult.map(a => a.publickey)
       const PublicKey = cryptr.decrypt(publickey);
-
+      console.log(publickey)
       // Signing in ether wallet using privatekey
       const wallet = new ethers.Wallet(privateKey1, provider)
       // Getting balance of sender and Receiver account Before Transaction
@@ -155,4 +107,56 @@ exports.TransferBalance = async (req, res) => {
   }
 }
 
+
+//************************************************************************************************************8 */
+
+
+
+
+
+
+// exports.GenerateWallet = async (req, res) => {
+//   try {
+//     const { id, utype, email } = req.body;
+
+//     // Validate user input
+//     if (!(utype || email || id)) return res.status(400).json({ status_code: 400, message: 'All input are require, Missing Something Please check.' });
+
+//     // Generate JWT Token
+//     const token = jwt.sign(email, `${process.env.JWT_SECRET_KEY}`);
+
+//     //Generate Public Key and Private Key
+//     var addressData = ethWallet['default'].generate();
+
+//     // Generate Private key
+//     const privkey = (`${addressData.getPrivateKeyString()}`);
+
+//     // Encrypt privatekey
+//     const PRIVATEencryptedString = cryptr.encrypt(privkey);
+
+//     // Generate PublicKey
+//     const pubkey = (`${addressData.getAddressString()}`);
+
+//     // Encrypt publickey
+//     const PUBLICencryptedString = cryptr.encrypt(pubkey);
+
+//     // Data Destructured for getting Proper Response
+//     const data = {
+//       id,
+//       utype,
+//       email,
+//       token
+//     }
+
+//     // Storing Data in MySql DataBase
+//     const DBresult = db.StoreNewUserData(id, utype, email, PRIVATEencryptedString, PUBLICencryptedString)
+//     if (!DBresult) {
+//       return res.send()
+//     } else {
+//       res.json({ status_code: 200, msg: "Wallet Generared Successfully!!", data: [data] });
+//     }
+//   } catch (err) {
+//     return res.status(500).send({ status_code: 500, msg: err.message })
+//   }
+// }
 
