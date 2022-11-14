@@ -21,12 +21,7 @@ exports.getbalance = async (req, res) => {
     if (Result == undefined) return res.status(404).send({ msg: "Email not found!!" })
     // Decrypting  Publickey
     const decryptedString = cryptr.decrypt(Result);
-  console.log(decryptedString)
-
-  const [privateKey] = DBresult.map(a => a.privatekey)
-  const decryptedStringp = cryptr.decrypt(privateKey);
-  console.log(decryptedStringp)
-    // GET BALANCE FROM GIVEN PUBLICKEY Using "eathers" Package
+    
     const provider = new ethers.providers.JsonRpcProvider(process.env.provider)
 
     const balance = await provider.getBalance(decryptedString)      // need time optimisation 
